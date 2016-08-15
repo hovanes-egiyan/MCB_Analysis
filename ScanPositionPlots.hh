@@ -42,7 +42,7 @@
 #include "ScanPositionData.hh"
 
 
-class ScanPositionPlots : public TDirectory, public Histo::Container {
+class ScanPositionPlots : public TDirectoryFile, public Histo::Container {
 protected:
 
 	// Value to which the selector maps are initialized to
@@ -73,13 +73,15 @@ public:
 
 	virtual void createHistograms() ;
     virtual void makePerpPara() ;
-//    virtual void makeDiamond();
+    virtual void makeDiamond();
 //    virtual void makeEnhamcement();
 //    virtual void makeCoherentPolzrization();
 //    virtual void makePolarization();
 
 	static std::string removeDirectoryName( std::string path );
 	static std::string getRootFileName( const std::string baseName, const std::string type );
+
+	virtual TFile* getRootFile() const {return sppRootFile;}
 
 	// Getters and setters
 	// Return vector of types of MCB simulations

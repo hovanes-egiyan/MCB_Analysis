@@ -17,8 +17,11 @@ string ScanMCB::smFolderName = "MCB";
 
 // Main constructor
 ScanMCB::ScanMCB(const std::string rootFileDir, const string rootFileNameBase) :
-		TDirectory(removeDirectoryName(rootFileNameBase).c_str(), smFolderName.c_str(), "",
-				gDirectory), smDirName(rootFileDir), smFileNameBase(
+        TFile( (removeDirectoryName(rootFileNameBase)+string("_ana.root")).c_str(), "recreate" ),
+//		TDirectory(removeDirectoryName(rootFileNameBase).c_str(), smFolderName.c_str(), "",
+//				gDirectory),
+        smDirName(rootFileDir),
+				smFileNameBase(
 				rootFileNameBase), smPlotMap() {
 	fillFileNames();
 	return;
@@ -26,6 +29,9 @@ ScanMCB::ScanMCB(const std::string rootFileDir, const string rootFileNameBase) :
 
 // Destructor
 ScanMCB::~ScanMCB() {
+    this->cd();
+    TFile::Write();
+    TFile::Close();
 	// Delete all entries in the plot map and erase all map entries
 	smPlotMap.clear();
 	return;
@@ -124,6 +130,7 @@ bool ScanMCB::otherTypesExist(std::string simTypeProbe,	std::string rootFileName
 
 void ScanMCB::processScanPositions() {
     cout << "Processing scan " << GetName() << endl;
+    this->cd();
 	for( auto& scanPositionIter : smPlotMap ) {
 		string fileName = scanPositionIter.first;
 		ScanPositionPlots* positionPlot = scanPositionIter.second;
@@ -170,8 +177,6 @@ void ScanMCB::createHistograms() {
                             cutID );
                     if ( tmpHisto != nullptr ) {
                         tmpHisto->getHist()->Scale( 1. / tmpHisto->getHist()->GetMaximum() );
-//                        mcbTreeSelector* selector =
-//                                positionPlots->getSelectorMap()[positionPlots->getSelectorMapKeys()[0]];
                         double collimatorOffset = selector->getCollimatorOffset();
                         cout << "Looking for the collimator bin for " << collimatorOffset << endl;
                         int iColBin = histoMap[newAxesID][cutID]->getHist()->GetYaxis()->FindFixBin( collimatorOffset );

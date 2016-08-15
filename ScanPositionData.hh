@@ -39,7 +39,7 @@
 
 class ScanPositionData : public Histo::Container {
 protected:
-//    static std::string spdNameDelimiter;
+    TDirectoryFile* directoryPtr = nullptr; // It's own directory
 
 	// Type of the position data, like sum, dif, inc or amo.
 	std::string spdName;
@@ -52,14 +52,9 @@ protected:
 	// Offset of the collimator nominal position
 	double spdCollimatorMotorOffset = -10.24;
 
-	// Directory pointer to remember where the object was created.
-	// This is where the histograms are going to be created.
-	TDirectory* spdDirPointer = 0;
-
-//	// Map of pointers to the histograms for this
-//	// scan point, like energy dependence etc. The first key is what on axes,
-//	// the second index is a string specifies the conditions/cuts.
-//	std::map<std::string, std::map<std::string, MCBHistoVirt*> > spdHistoMap;
+//	// Directory pointer to remember where the object was created.
+//	// This is where the histograms are going to be created.
+//	TDirectory* spdDirPointer = 0;
 
 	ScanPositionData(const ScanPositionData& data) {
 	}
@@ -89,6 +84,8 @@ public:
 	virtual std::string getName() const {
 		return spdName;
 	}
+
+	virtual TDirectory* getDirectory() { return directoryPtr ;}
 
 	virtual inline double setCollimatorMotorOffset(const double offset) {
 		return (spdCollimatorMotorOffset = offset);

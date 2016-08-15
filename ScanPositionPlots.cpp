@@ -18,7 +18,7 @@ std::map<std::string, mcbTreeSelector*> ScanPositionPlots::sppSelectorMapInit = 
         { "inc", 0 }, { "amo", 0 } };
 
 ScanPositionPlots::ScanPositionPlots( const std::string rootFileNameBase ) :
-        TDirectory( removeDirectoryName( rootFileNameBase ).c_str(), rootFileNameBase.c_str(), "", gDirectory ) {
+        TDirectoryFile( removeDirectoryName( rootFileNameBase ).c_str(), rootFileNameBase.c_str(), "", gDirectory ) {
     this->cd();
     // Loop over all selectors in the map. The selector keys are inserted in the
     // declaration and the pointers are set to zero there.
@@ -116,7 +116,7 @@ void ScanPositionPlots::createHistograms() {
     this->cd();
 
     makePerpPara();
-//    makeDiamond();
+    makeDiamond();
 //    makeEnhamcement();
 //    makeCoherentPolzrization();
 //    makePolarization();
@@ -132,6 +132,7 @@ void ScanPositionPlots::makePerpPara() {
     /// Fist get the maps of histograms from the sum and dif selectors
     mcbTreeSelector* sumSelector = sppSelectorMap["sum"];
     mcbTreeSelector* difSelector = sppSelectorMap["dif"];
+    if( sumSelector == nullptr || difSelector == nullptr ) return;
     auto& sumHistos = sumSelector->getHistoMap();
     auto& difHistos = difSelector->getHistoMap();
 
@@ -144,35 +145,79 @@ void ScanPositionPlots::makePerpPara() {
             auto sumHistPtr = sumCutIter.second;
             // Check that the sum is a scaled histogram
             if ( dynamic_cast<WrapperTypeI<Histo::scaledString>*>( sumHistPtr ) != nullptr ) {
-                cout << "Got the right type sum for " <<  sumHistPtr->getHist()->GetName() << endl;
                 if ( difHistos.count( axesID ) == 0 || difHistos[axesID].count( cutID ) == 0 ) continue;
                 auto difHistPtr = difHistos[axesID][cutID];
                 if ( dynamic_cast<WrapperTypeI<Histo::scaledString>*>( difHistPtr ) == nullptr ) continue;
-                cout << "Got the right type dif for " <<  difHistPtr->getHist()->GetName() << endl;
 
                 // Create PERP wrapper with histogram
                 string perpAxesID = replaceHistoSuffix( axesID, Histo::scaledString, Histo::perpString );
-                string perpName = WrapperType<Histo::paraString, TH1>::constructHistoName( perpAxesID, cutID );
                 auto perpClassName = replaceClassName( *sumHistPtr, scaledString, perpString );
                 if ( WrapperVirt::getBinaryOperatorMap().count( perpClassName ) > 0 ) {
                     histoMap[perpAxesID][cutID] = WrapperVirt::getBinaryOperatorMap()[perpClassName]( *sumHistPtr,
                             *difHistPtr, perpAxesID, cutID );
                     if ( histoMap[perpAxesID][cutID] != nullptr ) {
-                        histoMap[perpAxesID][cutID]->getHist()->SetTitle( perpName.c_str() );
+                        histoMap[perpAxesID][cutID]->getHist()->SetTitle( histoMap[perpAxesID][cutID]->getHist()->GetName() );
                         histoMap[perpAxesID][cutID]->getHist()->Add( difHistPtr->getHist(), -1 );
                     }
                 }
                 // Create PARA wrapper with histogram
                 string paraAxesID = replaceHistoSuffix( axesID, Histo::scaledString, Histo::paraString );
-                string paraName = WrapperType<Histo::paraString, TH1>::constructHistoName( paraAxesID, cutID );
                 auto paraClassName = replaceClassName( *sumHistPtr, scaledString, paraString );
                 if ( WrapperVirt::getBinaryOperatorMap().count( paraClassName ) > 0 ) {
                     histoMap[paraAxesID][cutID] = WrapperVirt::getBinaryOperatorMap()[paraClassName]( *sumHistPtr,
                             *difHistPtr, paraAxesID, cutID );
                     if ( histoMap[paraAxesID][cutID] != nullptr ) {
-                        histoMap[paraAxesID][cutID]->getHist()->SetTitle( paraName.c_str() );
+                        histoMap[paraAxesID][cutID]->getHist()->SetTitle( histoMap[paraAxesID][cutID]->getHist()->GetName() );
                         histoMap[paraAxesID][cutID]->getHist()->Add( difHistPtr->getHist(), -1 );
                     }
+                }
+            }
+        }
+    }
+}
+
+
+// Sum of the coherent sum and incoherent contributions
+void ScanPositionPlots::makeDiamond() {
+    this->cd();
+    /// Fist get the maps of histograms from the sum and inc selectors
+    mcbTreeSelector* sumSelector = sppSelectorMap["sum"];
+    mcbTreeSelector* incSelector = sppSelectorMap["inc"];
+    if( sumSelector == nullptr || incSelector == nullptr ) return;
+    auto& sumHistos = sumSelector->getHistoMap();
+    auto& incHistos = incSelector->getHistoMap();
+
+    // Loop through sum histograms, only considering TH1D histos for DIAMOND
+    for ( auto& sumAxesIter : sumHistos ) {
+        string axesID = sumAxesIter.first;
+        auto& sumHistoMap = sumAxesIter.second;
+        for ( auto& sumCutIter : sumHistoMap ) {
+            string cutID = sumCutIter.first;
+            auto sumHistPtr = sumCutIter.second;
+            if( dynamic_cast<TH1D*>(sumHistPtr->getHist()) == nullptr ) continue;
+            // Check that the sum is a scaled histogram
+            if ( dynamic_cast<WrapperTypeI<scaledString>*>( sumHistPtr ) != nullptr ) {
+                cout << "Got the right type sum for " <<  sumHistPtr->getHist()->GetName() << endl;
+                if (incHistos.count( axesID ) == 0 || incHistos[axesID].count( cutID ) == 0 ) continue;
+                auto incHistPtr = incHistos[axesID][cutID];
+                if ( dynamic_cast<WrapperTypeI<scaledString>*>( incHistPtr ) == nullptr ) continue;
+                cout << "Got the right type inc for " <<  incHistPtr->getHist()->GetName() << endl;
+
+                sumHistPtr->getHist()->Print();
+                incHistPtr->getHist()->Print();
+
+                // Create DIAM wrapper with histogram
+                string diamAxesID = replaceHistoSuffix( axesID, scaledString, diamondString );
+                auto diamClassName = replaceClassName( *sumHistPtr, scaledString, diamondString );
+                if ( WrapperVirt::getBinaryOperatorMap().count( diamClassName ) > 0 ) {
+                    histoMap[diamAxesID][cutID] = WrapperVirt::getBinaryOperatorMap()[diamClassName]( *sumHistPtr,
+                            *incHistPtr, diamAxesID, cutID );
+                    if ( histoMap[diamAxesID][cutID] != nullptr ) {
+                        histoMap[diamAxesID][cutID]->getHist()->SetTitle( histoMap[diamAxesID][cutID]->getHist()->GetName() );
+                        histoMap[diamAxesID][cutID]->getHist()->Add( incHistPtr->getHist(), +1 );
+                    }
+                } else {
+                    cout << "Could no find binary operator for class name " <<  diamClassName << endl;
                 }
             }
         }

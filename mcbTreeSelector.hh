@@ -27,6 +27,7 @@
 #include "TStyle.h"
 #include "TSystem.h"
 #include "TObject.h"
+#include "TDirectory.h"
 
 #include "TUserMCBInp.h"
 #include "TUserMCBOut.h"
@@ -73,7 +74,8 @@ public:
 
 
 	mcbTreeSelector( const std::string type, TTree* tree ) :
-		TSelector(), ScanPositionData( type, tree ) {}
+		TSelector(), ScanPositionData( type, tree )  {
+	}
 	virtual ~mcbTreeSelector() {
 	}
 	virtual Int_t Version() const {

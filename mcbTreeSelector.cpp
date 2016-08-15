@@ -32,23 +32,6 @@ using namespace Histo;
 
 ClassImp( mcbTreeSelector )
 
-//string mcbTreeSelector::mcbio_lib_file = "/home/hovanes/GlueX/MCB/linux/obj/libTUserMCBIO.so";
-//volatile int dummyInt = mcbTreeSelector::LoadSharedLibraries();
-//
-//
-//int mcbTreeSelector::LoadSharedLibraries() {
-//	// First make sure that the MCBIO so-file is loaded to be able to read
-//	// the user data associated with the tree.
-//	cout << "Trying to load libraries ... " << endl;
-//	if ( string( gSystem->GetLibraries(mcbio_lib_file.c_str()) ) == string( "" ) ) {
-//		cout << "Loading library " << mcbio_lib_file << endl;
-//		if ( gSystem->Load(mcbio_lib_file.c_str()) != 0)
-//			throw runtime_error(
-//					string("Could not load ") + mcbio_lib_file
-//							+ string("library"));
-//	}
-//	return 0;
-//}
 
 void mcbTreeSelector::Init( TTree *tree ) {
     // The Init() function is called when the selector needs to initialize
@@ -121,7 +104,7 @@ Bool_t mcbTreeSelector::Process( Long64_t entry ) {
     fReader.SetEntry( entry );
     if ( entry % 100000 == 0 and entry > 0 ) cout << "Processing Entry " << entry << endl;
 
-    Float_t intensity = **dynamic_cast<TTreeReaderValue<Float_t>*>( treeValueMap["intensity"] );
+    Float_t intensity = *(*dynamic_cast<TTreeReaderValue<Float_t>*>( treeValueMap["intensity"] ) );
     Double_t intensitySign = TMath::Sign( 1.0, intensity );
 
     // Collimator distance is given in meters in the input info object
@@ -203,12 +186,13 @@ TUserMCBOut* mcbTreeSelector::GetUserMCBOutput() {
 // the Process method of the same object inside the event loop of the tree.
 void mcbTreeSelector::processTree( string option, Long64_t nEntries, Long64_t firstEntry ) {
     if ( spdTree != 0 ) {
-        spdTree->Process( this, option.c_str(), nEntries, firstEntry );
+        spdTree->Process( dynamic_cast<TSelector*>(this), option.c_str(), nEntries, firstEntry );
         spdWeight = this->getWeight();
     }
 }
 
 void mcbTreeSelector::createHistograms() {
+    this->getDirectory()->cd();
     cout << "creating histograms for " << GetName() << endl;
     string histName, axesName, cutName;
     axesName = "Eg";
@@ -234,7 +218,8 @@ void mcbTreeSelector::createHistograms() {
 }
 
 void mcbTreeSelector::createScaledHistograms() {
-    cout << "Creating scaled histograms for " << getName() << endl;
+    this->getDirectory()->cd();
+    cout << "Creating scaled histograms for " << GetName() << endl;
     cout << "In directory " << gDirectory->GetPath() << endl;
     // Cloning various dependences with appropriate weights.
     // Now get all the histograms in the scans. Loop over the axesID and

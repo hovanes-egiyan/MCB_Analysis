@@ -1,12 +1,19 @@
-gSystem->Load("/home/hovanes/GlueX/MCB/linux/obj/libTUserMCBIO.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/WrapperAxesCuts.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/Container.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/WrapperVirt.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/WrapperDim.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/WrapperType.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/WrapperPhysics.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/Wrapper.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/ScanPositionData.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/ScanMCB.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/mcbTreeSelector.so");
-gSystem->Load("/home/hovanes/Workspaces/C++ Projects/MCB Analysis/ScanPositionPlots.so");
+#include "TROOT.h"
+#include "TSystem.h"\
+
+extern TSystem* gSystem;
+
+void loadLibraries() {
+    (TSystem*)gSystem->Load("/home/hovanes/ROOT/slib/libTUserMCBIO.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/WrapperAxesCuts.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/Container.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/WrapperVirt.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/WrapperDim.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/WrapperType.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/WrapperPhysics.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/Wrapper.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/ScanPositionData.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/ScanMCB.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/mcbTreeSelector.so");
+//    gSystem->Load("/home/hovanes/ROOT/slib/ScanPositionPlots.so");
+}

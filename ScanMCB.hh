@@ -40,7 +40,7 @@
 
 #include "ScanPositionPlots.hh"
 
-class ScanMCB: public TDirectory, public Histo::Container {
+class ScanMCB: public TFile, public Histo::Container {
 protected:
 
 	static std::string smFolderName;
