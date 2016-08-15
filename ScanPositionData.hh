@@ -52,12 +52,10 @@ protected:
 	// Offset of the collimator nominal position
 	double spdCollimatorMotorOffset = -10.24;
 
-//	// Directory pointer to remember where the object was created.
-//	// This is where the histograms are going to be created.
-//	TDirectory* spdDirPointer = 0;
-
 	ScanPositionData(const ScanPositionData& data) {
 	}
+	ScanPositionData( ScanPositionData&& data) = delete;
+
 	ScanPositionData& operator=(const ScanPositionData& data) {
 		return *this;
 	}

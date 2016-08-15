@@ -19,8 +19,6 @@ ClassImp(ScanPositionData)
 ScanPositionData::ScanPositionData( const std::string type, TTree* tree ) : Container(),
     directoryPtr( new TDirectoryFile( type.c_str(), type.c_str(), "", gDirectory) ),
 		spdName(type), spdTree(tree), spdWeight() {
-	// The directory location is where this object is created
-//    spdDirPointer = gDirectory;
     directoryPtr->cd();
 	return;
 }
